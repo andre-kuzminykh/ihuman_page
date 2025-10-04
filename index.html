@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andre AI Technologies</title>
+    <link rel="icon" href="https://i.ibb.co/gn7SmgY/866f2500-dd81-4d09-8c0f-2b55c25a3464-removalai-preview.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-purple: #8854F3;
+            --brand-orange: #F97316;
+            --brand-purple-rgb: 136, 84, 243;
+            --brand-orange-rgb: 249, 115, 22;
+        }
+        
+        html, body { 
+            overscroll-behavior: none; 
+            background-color: #0a0a0a;
+        }
+        .content-section { 
+            overscroll-behavior: contain; 
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #0a0a0a;
+            color: #E5E7EB;
+            /* Высота для работы скролла по секциям. 9 секций * 100vh. */
+            height: 900vh; 
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        #page-container {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        #content-wrapper {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+
+        .content-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Default for mobile */
+            opacity: 0;
+            z-index: 1;
+            transition: opacity 1.2s ease;
+            padding: 9rem 1rem 4rem; /* Оставляем отступ, чтобы контент не залезал под header */
+            overflow-y: auto; /* Включаем скролл для длинных секций */
+            -webkit-overflow-scrolling: touch;
+            box-sizing: border-box;
+            scroll-padding-top: 9rem;  
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            z-index: 2;
+        }
+        
+        .blob {
+            position: fixed;
+            z-index: -1;
+            opacity: 0.7;
+            transform: scale(1) translateZ(0);
+            transition: opacity 0.4s ease;
+            will-change: transform, opacity;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: high-quality;
+        }
+
+        .blob-purple {  
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='1600' viewBox='0 0 500 500'%3e%3cdefs%3e%3cradialGradient id='grad' cx='50%25' cy='50%25' r='50%25'%3e%3cstop offset='0%25' stop-color='%238854F3' stop-opacity='1'/%3e%3cstop offset='100%25' stop-color='%238854F3' stop-opacity='0'/%3e%3c/radialGradient%3e%3cfilter id='blob_filter' x='-50%25' y='-50%25' width='200%25' height='200%25'%3e%3CfeTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='3' result='noise'/%3e%3CfeDisplacementMap in='SourceGraphic' in2='noise' scale='50'/%3e%3CfeGaussianBlur stdDeviation='70'/%3e%3C/filter%3e%3c/defs%3e%3ccircle cx='250' cy='250' r='150' fill='url(%23grad)' filter='url(%23blob_filter)'/%3e%3c/svg%3e");
+        }
+        .blob-orange {  
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='1600' viewBox='0 0 500 500'%3e%3cdefs%3e%3cradialGradient id='grad' cx='50%25' cy='50%25' r='50%25'%3e%3cstop offset='0%25' stop-color='%23F97316' stop-opacity='1'/%3e%3cstop offset='100%25' stop-color='%23F97316' stop-opacity='0'/%3e%3c/radialGradient%3e%3cfilter id='blob_filter' x='-50%25' y='-50%25' width='200%25' height='200%25'%3e%3CfeTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='3' result='noise'/%3e%3CfeDisplacementMap in='SourceGraphic' in2='noise' scale='50'/%3e%3CfeGaussianBlur stdDeviation='70'/%3e%3C/filter%3e%3c/defs%3e%3ccircle cx='250' cy='250' r='150' fill='url(%23grad)' filter='url(%23blob_filter)'/%3e%3c/svg%3e");
+        }
+        
+        .author-photo-container {
+            position: relative;
+            z-index: 10;
+        }
+
+        .speech-bubble {
+            background-color: #111113;
+            border: 1px solid #333;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            top: -1rem;  
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 1rem solid transparent;
+            border-right: 1rem solid transparent;
+            border-bottom: 1rem solid #111113;
+            filter: drop-shadow(0px -1px 0px #333);
+        }
+        
+        @media (min-width: 768px) {
+            .content-section {
+                justify-content: center;
+            }
+            #final-section {
+                padding-bottom: 0; /* Убрали отступ, т.к. футер теперь внутри */
+            }
+            .speech-bubble::before {
+                top: 3rem; left: -1rem;
+                transform: translateY(-50%);
+                border-left: 0; border-right: 1rem solid #111113;
+                border-top: 1rem solid transparent;
+                border-bottom: 1rem solid transparent;
+                filter: drop-shadow(-1px 0px 0px #333);
+            }
+        }
+        
+        .logo-link { transition: opacity 0.3s ease, transform 0.3s ease; }
+        .logo-link:hover { opacity: 0.85; transform: scale(1.05); }
+
+        .cta-button {
+            position: relative;
+            background: transparent;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, color 0.5s ease, background-image 0.5s ease;
+            z-index: 1;
+        }
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            border-radius: 9999px;
+            padding: 2px;
+            background: linear-gradient(to right, var(--brand-purple), var(--brand-orange));
+            -webkit-mask:
+                linear-gradient(#fff 0 0) content-box,
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            transition: opacity 0.5s ease;
+            opacity: 1;
+        }
+        .cta-button:hover {
+            background-image: linear-gradient(to right, var(--brand-purple), var(--brand-orange), var(--brand-purple));
+            background-size: 200% auto;
+            background-position: left center;
+            transform: translateY(2px);
+            box-shadow: 0px 5px 15px rgba(var(--brand-orange-rgb), 0.2), 0px 5px 15px rgba(var(--brand-purple-rgb), 0.2);
+            color: white;
+        }
+        .cta-button:hover::before {
+            opacity: 0;
+        }
+
+        .cta-button > * { position: relative; z-index: 1; }
+        .cta-button svg { transition: transform 0.3s ease; }
+        .cta-button:hover svg { transform: scale(1.1); }
+        .nav-link { position: relative; transition: color 0.3s ease; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 50%; transform: translateX(-50%); background-color: var(--brand-purple); transition: width 0.3s ease; }
+        .nav-link:hover { color: #FFFFFF; }
+        .nav-link:hover::after { width: 100%; }
+        .mobile-menu { transition: transform 0.3s ease-in-out; }
+        .main-cta-button { background-color: white; color: #0a0a0a; transition: color 0.4s ease-in-out, transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out, background-image 0.4s ease-in-out; transform: scale(1); }
+        .main-cta-button:hover { background-image: linear-gradient(to right, var(--brand-orange), var(--brand-purple), var(--brand-orange)); color: white; transform: scale(1.05); box-shadow: 0 10px 25px -5px rgba(var(--brand-orange-rgb), 0.4), 0 8px 10px -6px rgba(var(--brand-purple-rgb), 0.4); background-size: 200% auto; animation: gradient-flow 4s linear infinite; }
+        .cv-button { background-color: white; color: #0a0a0a; transition: color 0.4s ease-in-out, transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out, background-image 0.4s ease-in-out; transform: scale(1); }
+        .cv-button:hover { background-image: linear-gradient(to right, var(--brand-orange), var(--brand-purple), var(--brand-orange)); color: white; transform: scale(1.05); box-shadow: 0 10px 25px -5px rgba(var(--brand-orange-rgb), 0.4), 0 8px 10px -6px rgba(var(--brand-purple-rgb), 0.4); background-size: 200% auto; animation: gradient-flow 4s linear infinite; }
+        @keyframes gradient-flow { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+        
+        .btn-with-arrow::before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-right: 0.5rem;
+            background-color: currentColor;
+            flex-shrink: 0;
+            -webkit-mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2.5' stroke='currentColor'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25' /%3e%3c/svg%3e");
+            mask-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2.5' stroke='currentColor'%3e%3cpath stroke-linecap='round' stroke-linejoin='round' d='m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25' /%3e%3c/svg%3e");
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            transition: background-color 0.4s ease-in-out;
+            transform: translateZ(0);
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            z-index: 0;
+            pointer-events: none;
+            background-image: url('data:image/svg+xml,<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"><filter id="a"><feTurbulence baseFrequency="0.65" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23a)"/></svg>');
+            background-size: 256px 256px;
+            opacity: 0.08;
+            transform: translateZ(0); 
+        }
+
+        @media (min-width: 768px) {
+            body::after {
+                will-change: transform;
+                animation: grain-animation 8s alternate linear infinite;
+            }
+        }
+
+        @keyframes grain-animation {
+            0%   { transform: translate(0, 0); }
+            25%  { transform: translate(-3px, 4px); }
+            50%  { transform: translate(4px, -3px); }
+            75%  { transform: translate(-2px, -2px); }
+            100% { transform: translate(0, 0); }
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        #final-section {
+            padding-left: 0;
+            padding-right: 0;
+            padding-bottom: 0;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div id="page-container">
+        <div id="blob1" class="blob blob-purple w-[45rem] h-[45rem] md:w-[65rem] md:h-[65rem] lg:w-[80rem] lg:h-[80rem] xl:w-[95rem] xl:h-[95rem]"></div>
+        <div id="blob2" class="blob blob-orange w-[45rem] h-[45rem] md:w-[65rem] md:h-[65rem] lg:w-[80rem] lg:h-[80rem] xl:w-[95rem] xl:h-[95rem]"></div>
+
+        <header class="absolute top-0 w-full z-[200] py-1 px-4 sm:px-6 lg:px-8 bg-[#0a0a0a]">
+            <div class="container mx-auto flex justify-between items-center">
+                <a href="#" data-target-section-index="0" class="logo-link flex-shrink-0"><img src="https://i.ibb.co/gn7SmgY/866f2500-dd81-4d09-8c0f-2b55c25a3464-removalai-preview.png" alt="AIT Logo" class="h-16 lg:h-20 w-auto"></a>
+                <nav class="hidden md:flex items-center md:text-xs lg:text-sm xl:text-base space-x-4 md:space-x-6 lg:space-x-10">
+                    <a href="#" data-target-section-index="2" class="nav-link text-center lg:whitespace-nowrap"><div class="hidden lg:block">Science Hub</div><div class="lg:hidden"><span class="block">Science</span><span class="block leading-tight">Hub</span></div></a>
+                    <a href="#" data-target-section-index="3" class="nav-link text-center lg:whitespace-nowrap"><div class="hidden lg:block">AI Super Agent</div><div class="lg:hidden"><span class="block">AI</span><span class="block leading-tight">Super Agent</span></div></a>
+                    <a href="#" data-target-section-index="4" class="nav-link text-center lg:whitespace-nowrap"><div class="hidden lg:block">AI Employees</div><div class="lg:hidden"><span class="block">AI</span><span class="block leading-tight">Employees</span></div></a>
+                    <a href="#" data-target-section-index="5" class="nav-link text-center lg:whitespace-nowrap"><div class="hidden lg:block">AI Products</div><div class="lg:hidden"><span class="block">AI</span><span class="block leading-tight">Products</span></div></a>
+                    <a href="#" data-target-section-index="6" class="nav-link text-center lg:whitespace-nowrap"><div class="hidden lg:block">AI Services</div><div class="lg:hidden"><span class="block">AI</span><span class="block leading-tight">Services</span></div></a>
+                    <a href="#" data-target-section-index="7" class="nav-link text-center lg:whitespace-nowrap">Blog</a>
+                </nav>
+                <a href="#" class="hidden md:flex items-center justify-center cta-button text-white font-medium py-3 md:px-3 lg:px-5 xl:px-7 rounded-full md:text-xs lg:text-sm xl:text-base">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <div><span class="block leading-tight whitespace-nowrap">AI Solutions</span></div>
+                </a>
+                <button id="menu-btn" class="md:hidden focus:outline-none z-[310]"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg></button>
+            </div>
+        </header>
+        
+        <div id="content-wrapper">
+                 <section id="hero-section" class="content-section justify-center">
+                       <div class="container mx-auto max-w-4xl text-center">
+                             <h1 id="hero-title" class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-tight xl:whitespace-nowrap">
+                                   <span style="color: var(--brand-purple);">AI</span> FOR <span style="color: var(--brand-orange);">HUMAN</span> GOOD
+                             </h1>
+                             <p id="hero-subtitle" data-typewriter-mode="adaptive" class="typewriter-target mt-6 text-base sm:text-lg md:text-xl lg:text-2xl text-white max-w-3xl mx-auto" style="font-weight: 700;">AI ecosystem for making AI<br>a trusted business & personal assistant</p>
+                             <a href="#" data-target-section-index="8" class="main-cta-button inline-flex items-center justify-center font-bold py-4 px-6 sm:py-5 sm:px-8 rounded-full mt-12 text-base sm:text-lg lg:text-xl"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>Discover AI Solutions</a>
+                       </div>
+                 </section>
+
+                 <section id="about-section" class="content-section">
+                               <div class="container mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-center gap-8 lg:gap-16">
+                                     <div class="flex-shrink-0">
+                                         <div class="author-photo-container w-48 h-48 lg:w-56 lg:h-56 rounded-full inline-block">
+                                             <img src="https://i.ibb.co/G3MdKgx1/High-Performance-bli.gif" alt="Andre, founder of Andre AI Technologies" class="w-full h-full object-cover rounded-full">
+                                         </div>
+                                     </div>
+                                     <div class="speech-bubble mt-4 md:mt-0 w-full max-w-2xl rounded-2xl p-6 lg:p-8 flex flex-col">
+                                         <p id="about-text" data-typewriter-mode="adaptive" class="typewriter-target text-white text-sm md:text-base lg:text-lg leading-relaxed">🤖 Hi, I’m Andre, founder of Andre AI Technologies.<br>I have 10+ years of experience in AI transformation of global tech companies and launching AI startups.<br>I focus on AI research, building AI products, training people for emerging professions, and shaping a new economy where AI is the core of the modern operational model.</p>
+                                         <a href="#" class="cv-button inline-flex items-center justify-center font-bold py-2 px-5 rounded-full mt-6 text-base self-end">
+                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 mr-2"><path fill-rule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a.375.375 0 0 1-.375-.375V6.75A3.75 3.75 0 0 0 10.5 3h-1.875A.375.375 0 0 1 8.25 2.625V1.5H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5H12a.75.75 0 0 0 0-1.5H8.25Z" clip-rule="evenodd" /><path d="M12.971 1.816A5.23 5.23 0 0 1 15.75 1.5h1.875c.414 0 .75.336.75.75v4.5c0 .414-.336.75-.75.75h-1.875a5.23 5.23 0 0 1-2.779-.316Z" /></svg>
+                                             CV
+                                         </a>
+                                     </div>
+                               </div>
+                 </section>
+
+                 <section id="dataism-section" class="content-section">
+                               <div class="container mx-auto max-w-7xl xl:max-w-screen-xl text-center flex flex-col items-center justify-start px-4">
+                                     <div class="flex flex-col items-center justify-start">
+                                         <div class="flex flex-col text-center">
+                                             <h2 id="dataism-title" class="typewriter-target text-4xl sm:text-5xl font-bold text-white leading-tight">
+                                                 Dataism Science Hub
+                                             </h2>
+                                             <p id="dataism-subtitle" class="typewriter-target text-xl md:text-2xl text-white mt-2">Open Applied AI Community</p>
+                                         </div>
+                                     </div>
+                                     <div class="mt-8 md:mt-12 w-full">
+                                         <div class="flex flex-col items-center md:grid md:grid-cols-3 gap-8 w-full py-4">
+                                             <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 lg:p-8 flex flex-col justify-between text-center shadow-lg w-full max-w-xs md:max-w-none mb-4 md:mb-0 h-full">
+                                                 <div class="flex-grow">
+                                                     <h3 class="text-2xl font-bold text-white">🔬 AI Laboratory</h3>
+                                                     <p class="mt-3 text-gray-400">Research & Development<br>of Applied AI Solutions</p>
+                                                 </div>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full mt-6 text-sm w-48">
+                                                     <span class="whitespace-nowrap">Visit</span>
+                                                 </a>
+                                             </div>
+                                             <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 lg:p-8 flex flex-col justify-between text-center shadow-lg w-full max-w-xs md:max-w-none mb-4 md:mb-0 h-full">
+                                                 <div class="flex-grow">
+                                                     <h3 class="text-2xl font-bold text-white">🎓 AI Academy</h3>
+                                                     <p class="mt-3 text-gray-400">Educational programs<br>for AI Professionals</p>
+                                                 </div>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full mt-6 text-sm w-48">
+                                                     <span class="whitespace-nowrap">Visit</span>
+                                                 </a>
+                                             </div>
+                                             <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 lg:p-8 flex flex-col justify-between text-center shadow-lg w-full max-w-xs md:max-w-none h-full">
+                                                 <div class="flex-grow">
+                                                      <h3 class="text-2xl font-bold text-white">🌍 Datapedia</h3>
+                                                      <p class="mt-3 text-gray-400">Interactive Encyclopedia<br>of AI Simulations</p>
+                                                 </div>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full mt-6 text-sm w-48">
+                                                     <span class="whitespace-nowrap">Visit</span>
+                                                 </a>
+                                             </div>
+                                         </div>
+                                     </div>
+                               </div>
+                 </section>
+
+                 <section id="neuronium-section" class="content-section">
+                               <div class="container mx-auto max-w-7xl xl:max-w-screen-xl text-center flex flex-col items-center justify-start px-4">
+                                     <div class="flex flex-col items-center justify-start">
+                                         <div class="flex flex-col text-center">
+                                             <h2 id="neuronium-title" class="typewriter-target text-4xl sm:text-5xl font-bold text-white leading-tight">
+                                                 Neuronium AI
+                                             </h2>
+                                             <p id="neuronium-subtitle" class="typewriter-target text-xl md:text-2xl text-white mt-2">AI Super Agent</p>
+                                         </div>
+                                     </div>
+
+                                     <div class="mt-8 md:mt-12 w-full max-w-4xl mx-auto">
+                                         <div class="flex flex-col items-center md:grid md:grid-cols-2 gap-8 w-full py-4">
+                                             <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 lg:p-8 flex flex-col justify-between text-center shadow-lg w-full max-w-xs md:max-w-none mb-4 md:mb-0">
+                                                 <div class="flex-grow">
+                                                     <h3 class="text-2xl font-bold text-white">🤖 Personal</h3>
+                                                     <p class="mt-3 text-gray-400">For advanced research<br>and daily tasks</p>
+                                                 </div>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full mt-6 text-sm w-48">
+                                                     <span class="whitespace-nowrap">Learn More</span>
+                                                 </a>
+                                             </div>
+                                             <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 lg:p-8 flex flex-col justify-between text-center shadow-lg w-full max-w-xs md:max-w-none">
+                                                 <div class="flex-grow">
+                                                     <h3 class="text-2xl font-bold text-white">💼 Professional</h3>
+                                                     <p class="mt-3 text-gray-400">For automation of complex<br>business processes</p>
+                                                 </div>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full mt-6 text-sm w-48">
+                                                     <span class="whitespace-nowrap">Learn More</span>
+                                                 </a>
+                                             </div>
+                                         </div>
+                                     </div>
+                               </div>
+                 </section>
+                 
+                 <section id="human-intelligence-section" class="content-section">
+                               <div class="container mx-auto max-w-7xl xl:max-w-screen-xl text-center flex flex-col items-center justify-start px-4">
+                                     <div class="flex flex-col items-center justify-start">
+                                         <div class="flex flex-col text-center">
+                                             <h2 id="human-intelligence-title" class="typewriter-target text-4xl sm:text-5xl font-bold text-white leading-tight">
+                                                 Human Intelligence Platform
+                                             </h2>
+                                             <p id="human-intelligence-subtitle" class="typewriter-target text-xl md:text-2xl text-white mt-2">Hire Human-like AI Employees</p>
+                                         </div>
+                                     </div>
+                                     
+                                     <div class="mt-8 md:mt-12 w-full">
+                                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 w-full">
+                                             <div class="employee-card bg-[#111113] border border-[#333] rounded-2xl p-4 lg:p-6 flex flex-col justify-between text-center shadow-lg">
+                                                 <h3 class="text-xl lg:text-2xl font-bold text-white mb-4">🗓️<br>Manager</h3>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm">Hire</a>
+                                             </div>
+                                             <div class="employee-card bg-[#111113] border border-[#333] rounded-2xl p-4 lg:p-6 flex flex-col justify-between text-center shadow-lg">
+                                                 <h3 class="text-xl lg:text-2xl font-bold text-white mb-4">👤<br>HR</h3>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm">Hire</a>
+                                             </div>
+                                             <div class="employee-card bg-[#111113] border border-[#333] rounded-2xl p-4 lg:p-6 flex flex-col justify-between text-center shadow-lg">
+                                                 <h3 class="text-xl lg:text-2xl font-bold text-white mb-4">🔍<br>Marketer</h3>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm">Hire</a>
+                                             </div>
+                                             <div class="employee-card bg-[#111113] border border-[#333] rounded-2xl p-4 lg:p-6 flex flex-col justify-between text-center shadow-lg">
+                                                 <h3 class="text-xl lg:text-2xl font-bold text-white mb-4">💬<br>SMM</h3>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm">Hire</a>
+                                             </div>
+                                             <div class="employee-card bg-[#111113] border border-[#333] rounded-2xl p-4 lg:p-6 flex flex-col justify-between text-center shadow-lg">
+                                                 <h3 class="text-xl lg:text-2xl font-bold text-white mb-4">💰<br>Sales</h3>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm">Hire</a>
+                                             </div>
+                                             <div class="employee-card bg-[#111113] border border-[#333] rounded-2xl p-4 lg:p-6 flex flex-col justify-between text-center shadow-lg">
+                                                 <h3 class="text-xl lg:text-2xl font-bold text-white mb-4">💜<br>Support</h3>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm">Hire</a>
+                                             </div>
+                                             <div class="employee-card bg-[#111113] border border-[#333] rounded-2xl p-4 lg:p-6 flex flex-col justify-between text-center shadow-lg">
+                                                 <h3 class="text-xl lg:text-2xl font-bold text-white mb-4">📊<br>Analyst</h3>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm">Hire</a>
+                                             </div>
+                                             <div class="employee-card bg-[#111113] border border-[#333] rounded-2xl p-4 lg:p-6 flex flex-col justify-between text-center shadow-lg">
+                                                 <h3 class="text-xl lg:text-2xl font-bold text-white mb-4">🎨<br>Designer</h3>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm">Hire</a>
+                                             </div>
+                                             <div class="employee-card bg-[#111113] border border-[#333] rounded-2xl p-4 lg:p-6 flex flex-col justify-between text-center shadow-lg">
+                                                 <h3 class="text-xl lg:text-2xl font-bold text-white mb-4">💻<br>Developer</h3>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm">Hire</a>
+                                             </div>
+                                             <div class="employee-card bg-[#111113] border border-[#333] rounded-2xl p-4 lg:p-6 flex flex-col justify-between text-center shadow-lg">
+                                                 <h3 class="text-xl lg:text-2xl font-bold text-white mb-4">⚙️<br>Engineer</h3>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm">Hire</a>
+                                             </div>
+                                         </div>
+                                     </div>
+                               </div>
+                 </section>
+
+                 <section id="genesis-factory-section" class="content-section">
+                               <div class="container mx-auto max-w-7xl xl:max-w-screen-xl text-center flex flex-col items-center justify-start px-4">
+                                     <div class="flex flex-col items-center justify-start">
+                                         <div class="flex flex-col text-center">
+                                             <h2 id="genesis-factory-title" class="typewriter-target text-4xl sm:text-5xl font-bold text-white leading-tight">
+                                                 Genesis Startup Factory
+                                             </h2>
+                                             <p id="genesis-factory-subtitle" class="typewriter-target text-xl md:text-2xl text-white mt-2">AI Startup Studio</p>
+                                         </div>
+                                     </div>
+
+                                     <div class="mt-8 md:mt-12 w-full max-w-4xl mx-auto">
+                                         <div class="flex flex-col items-center md:grid md:grid-cols-2 gap-8 w-full py-4">
+                                             <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 lg:p-8 flex flex-col justify-between text-center shadow-lg w-full max-w-xs md:max-w-none mb-4 md:mb-0">
+                                                 <div class="flex-grow">
+                                                     <h3 class="text-2xl font-bold text-white">📜 Dataist AI</h3>
+                                                     <p class="mt-3 text-gray-400">AI Papers Researcher</p>
+                                                 </div>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full mt-6 text-sm w-48">
+                                                     <span class="whitespace-nowrap">Get Help</span>
+                                                 </a>
+                                             </div>
+                                             <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 lg:p-8 flex flex-col justify-between text-center shadow-lg w-full max-w-xs md:max-w-none">
+                                                 <div class="flex-grow">
+                                                     <h3 class="text-2xl font-bold text-white">♾️ Landao AI</h3>
+                                                     <p class="mt-3 text-gray-400">AI Mental Coach</p>
+                                                 </div>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full mt-6 text-sm w-48">
+                                                     <span class="whitespace-nowrap">Get Help</span>
+                                                 </a>
+                                             </div>
+                                         </div>
+                                     </div>
+                               </div>
+                 </section>
+
+                 <section id="ai-first-group-section" class="content-section">
+                               <div class="container mx-auto max-w-7xl xl:max-w-screen-xl text-center flex flex-col items-center justify-start px-4">
+                                     <div class="flex flex-col items-center justify-start">
+                                         <div class="flex flex-col text-center">
+                                             <h2 id="ai-first-group-title" class="typewriter-target text-4xl sm:text-5xl font-bold text-white leading-tight">
+                                                 AI-First Group
+                                             </h2>
+                                             <p id="ai-first-group-subtitle" class="typewriter-target text-xl md:text-2xl text-white mt-2">Empowering AI Startups and Tech Companies</p>
+                                         </div>
+                                     </div>
+                                     
+                                     <div class="mt-8 md:mt-12 w-full">
+                                         <div class="flex flex-col items-center md:grid md:grid-cols-2 gap-8 w-full py-4">
+                                             <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 lg:p-8 flex flex-col justify-between text-center shadow-lg w-full max-w-sm md:max-w-none mb-4 md:mb-0">
+                                                 <div>
+                                                     <h3 class="text-2xl font-bold text-white">🧠 Andre AI Consulting</h3>
+                                                     <p class="mt-1 text-gray-400">CTO-as-a-Service</p>
+                                                     <ul class="mt-6 space-y-2 text-gray-300 text-left inline-block">
+                                                         <li class="flex items-start"><span class="text-purple-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>AI Maturity Audit</span></li>
+                                                         <li class="flex items-start"><span class="text-purple-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>AI Transformation Strategy</span></li>
+                                                         <li class="flex items-start"><span class="text-purple-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>AI Team Management</span></li>
+                                                         <li class="flex items-start"><span class="text-purple-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>AI Product Development</span></li>
+                                                         <li class="flex items-start"><span class="text-purple-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>AI Process Automation</span></li>
+                                                         <li class="flex items-start"><span class="text-purple-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>AI Training for Executives</span></li>
+                                                     </ul>
+                                                 </div>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full mt-8 text-sm w-48">
+                                                     <span class="whitespace-nowrap">Contact</span>
+                                                 </a>
+                                             </div>
+                                             <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 lg:p-8 flex flex-col justify-between text-center shadow-lg w-full max-w-sm md:max-w-none">
+                                                 <div>
+                                                     <h3 class="text-2xl font-bold text-white">✨ Universa Design</h3>
+                                                     <p class="mt-1 text-gray-400">Customer Experience</p>
+                                                     <ul class="mt-6 space-y-2 text-gray-300 text-left inline-block">
+                                                         <li class="flex items-start"><span class="text-orange-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>Pitch Deck</span></li>
+                                                         <li class="flex items-start"><span class="text-orange-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>Landing page</span></li>
+                                                         <li class="flex items-start"><span class="text-orange-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>Customer Journey</span></li>
+                                                         <li class="flex items-start"><span class="text-orange-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>User Experience</span></li>
+                                                         <li class="flex items-start"><span class="text-orange-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>User Interface</span></li>
+                                                         <li class="flex items-start"><span class="text-orange-400 mr-3 mt-1.5 flex-shrink-0">•</span><span>App Prototype</span></li>
+                                                     </ul>
+                                                 </div>
+                                                 <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full mt-8 text-sm w-48">
+                                                     <span class="whitespace-nowrap">Contact</span>
+                                                 </a>
+                                             </div>
+                                         </div>
+                                     </div>
+                               </div>
+                 </section>
+
+                 <section id="blog-section" class="content-section">
+                               <div class="container mx-auto max-w-7xl xl:max-w-screen-xl text-center flex flex-col items-center justify-start px-4">
+                                     <div class="flex flex-col items-center justify-start">
+                                         <div class="flex flex-col text-center">
+                                             <h2 id="blog-title" class="typewriter-target text-4xl sm:text-5xl font-bold text-white leading-tight">
+                                                 Dataist Media
+                                             </h2>
+                                             <p id="blog-subtitle" class="typewriter-target text-xl md:text-2xl text-white mt-2">Latest News & Insights from the World of AI</p>
+                                         </div>
+                                     </div>
+                                     
+                                     <div class="mt-8 md:mt-12 w-full max-w-3xl mx-auto flex flex-col items-center">
+                                         <div class="w-full flex items-center gap-x-4">
+                                             <button id="blog-prev" class="hidden md:flex flex-shrink-0 z-10 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                                             </button>
+                                             <div id="blog-slider-wrapper" class="w-full flex-grow overflow-hidden">
+                                                 <div id="blog-slider-container" class="flex transition-transform duration-500 ease-in-out">
+                                                     <div class="blog-slide flex-shrink-0 w-full p-2">
+                                                         <div class="blog-card relative bg-[#111113] rounded-2xl overflow-hidden shadow-lg w-full transition-transform transform hover:scale-[1.01] h-96">
+                                                             <img src="https://i.ibb.co/1YqZKwPL/Chat-GPT-Image-14-2025-01-05-00.png" alt="Business Matrix" class="absolute inset-0 w-full h-full object-cover">
+                                                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                                                             <p class="absolute top-6 left-6 text-xs uppercase tracking-wider text-white">September 14, 2025</p>
+                                                             <div class="relative p-6 lg:p-8 flex items-end h-full text-white text-left">
+                                                                 <div class="w-full flex justify-between items-end">
+                                                                     <h3 class="text-xl lg:text-2xl font-bold flex-grow">Business Matrix: The Architecture of Companies in the Age of AI</h3>
+                                                                     <a href="#" class="cv-button btn-with-arrow self-end inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm flex-shrink-0 ml-4"><span>Read More</span></a>
+                                                                 </div>
+                                                             </div>
+                                                         </div>
+                                                     </div>
+                                                     <div class="blog-slide flex-shrink-0 w-full p-2">
+                                                         <div class="blog-card relative bg-[#111113] rounded-2xl overflow-hidden shadow-lg w-full transition-transform transform hover:scale-[1.01] h-96">
+                                                             <img src="https://i.ibb.co/L5B0p1V/photo-1518770660439-4636190af475-ixlib-rb-4-0.jpg" alt="AI Ethics" class="absolute inset-0 w-full h-full object-cover">
+                                                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                                                             <p class="absolute top-6 left-6 text-xs uppercase tracking-wider text-white">September 10, 2025</p>
+                                                              <div class="relative p-6 lg:p-8 flex items-end h-full text-white text-left">
+                                                                 <div class="w-full flex justify-between items-end">
+                                                                     <h3 class="text-xl lg:text-2xl font-bold flex-grow">Navigating the Ethics of AI</h3>
+                                                                     <a href="#" class="cv-button btn-with-arrow self-end inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm flex-shrink-0 ml-4"><span>Read More</span></a>
+                                                                 </div>
+                                                             </div>
+                                                         </div>
+                                                     </div>
+                                                     <div class="blog-slide flex-shrink-0 w-full p-2">
+                                                         <div class="blog-card relative bg-[#111113] rounded-2xl overflow-hidden shadow-lg w-full transition-transform transform hover:scale-[1.01] h-96">
+                                                             <img src="https://i.ibb.co/L5B0p1V/photo-1518770660439-4636190af475-ixlib-rb-4-0.jpg" alt="AI in Healthcare" class="absolute inset-0 w-full h-full object-cover">
+                                                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                                                             <p class="absolute top-6 left-6 text-xs uppercase tracking-wider text-white">September 08, 2025</p>
+                                                              <div class="relative p-6 lg:p-8 flex items-end h-full text-white text-left">
+                                                                 <div class="w-full flex justify-between items-end">
+                                                                     <h3 class="text-xl lg:text-2xl font-bold flex-grow">AI's Impact on Healthcare</h3>
+                                                                     <a href="#" class="cv-button btn-with-arrow self-end inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm flex-shrink-0 ml-4"><span>Read More</span></a>
+                                                                 </div>
+                                                             </div>
+                                                         </div>
+                                                     </div>
+                                                     <div class="blog-slide flex-shrink-0 w-full p-2">
+                                                         <div class="blog-card relative bg-[#111113] rounded-2xl overflow-hidden shadow-lg w-full transition-transform transform hover:scale-[1.01] h-96">
+                                                             <img src="https://i.ibb.co/L5B0p1V/photo-1518770660439-4636190af475-ixlib-rb-4-0.jpg" alt="AI Job Market" class="absolute inset-0 w-full h-full object-cover">
+                                                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                                                             <p class="absolute top-6 left-6 text-xs uppercase tracking-wider text-white">September 05, 2025</p>
+                                                             <div class="relative p-6 lg:p-8 flex items-end h-full text-white text-left">
+                                                                 <div class="w-full flex justify-between items-end">
+                                                                     <h3 class="text-xl lg:text-2xl font-bold flex-grow">The AI Job Market in 2025</h3>
+                                                                     <a href="#" class="cv-button btn-with-arrow self-end inline-flex items-center justify-center font-bold py-2 px-5 rounded-full text-sm flex-shrink-0 ml-4"><span>Read More</span></a>
+                                                                 </div>
+                                                             </div>
+                                                         </div>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                             <button id="blog-next" class="hidden md:flex flex-shrink-0 z-10 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                                             </button>
+                                         </div>
+                                         <div class="md:hidden flex justify-center w-full mt-4 space-x-4">
+                                             <button id="blog-prev-mobile" class="flex-shrink-0 z-10 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                                             </button>
+                                              <button id="blog-next-mobile" class="flex-shrink-0 z-10 bg-black/30 text-white p-2 rounded-full hover:bg-black/50 transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                                             </button>
+                                         </div>
+                                     </div>
+                               </div>
+                 </section>
+
+                 <section id="final-section" class="content-section flex flex-col scrollbar-hide">
+                               <div class="container mx-auto max-w-screen-xl flex flex-col items-center md:justify-center px-4 w-full flex-grow"> 
+                                     <div class="w-full flex flex-col items-center md:justify-center text-center gap-8 md:gap-12">
+
+                                         <div class="flex flex-col items-center justify-center">
+                                             <h2 class="text-4xl sm:text-5xl font-bold text-white leading-tight">Andre AI Technologies</h2>
+                                             <p id="footer-subtitle" class="typewriter-target text-xl md:text-2xl text-white mt-2">AI Ecosystem for Human Good</p>
+                                         </div>
+                                         
+                                         <div class="w-full">
+                                             <div class="flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 gap-8 w-full py-4">
+                                                 <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 flex flex-col text-center shadow-lg h-full transition-transform transform hover:scale-105 w-full max-w-xs md:max-w-none mb-4 md:mb-0">
+                                                     <div class="flex-grow">
+                                                         <h4 class="text-xl font-bold text-white mb-3">🔬 Dataism Science Hub</h4>
+                                                         <p class="text-sm text-gray-400">Open Applied AI Community for research and development.</p>
+                                                     </div>
+                                                     <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full text-sm mt-6"><span>Explore</span></a>
+                                                 </div>
+                                                 <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 flex flex-col text-center shadow-lg h-full transition-transform transform hover:scale-105 w-full max-w-xs md:max-w-none mb-4 md:mb-0">
+                                                     <div class="flex-grow">
+                                                         <h4 class="text-xl font-bold text-white mb-3">🧠 Neuronium AI</h4>
+                                                         <p class="text-sm text-gray-400">Your personal and professional AI Super Agent for any task.</p>
+                                                     </div>
+                                                     <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full text-sm mt-6"><span>Explore</span></a>
+                                                 </div>
+                                                 <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 flex flex-col text-center shadow-lg h-full transition-transform transform hover:scale-105 w-full max-w-xs md:max-w-none mb-4 md:mb-0">
+                                                     <div class="flex-grow">
+                                                         <h4 class="text-xl font-bold text-white mb-3">🤵🏻 Human Intelligence Platform</h4>
+                                                         <p class="text-sm text-gray-400">Hire autonomous, human-like AI employees for your business.</p>
+                                                     </div>
+                                                     <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full text-sm mt-6"><span>Explore</span></a>
+                                                 </div>
+                                                 <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 flex flex-col text-center shadow-lg h-full transition-transform transform hover:scale-105 w-full max-w-xs md:max-w-none mb-4 md:mb-0">
+                                                     <div class="flex-grow">
+                                                         <h4 class="text-xl font-bold text-white mb-3">🚀 Genesis Startup Factory</h4>
+                                                         <p class="text-sm text-gray-400">Our AI Startup Studio for launching innovative products.</p>
+                                                     </div>
+                                                     <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full text-sm mt-6"><span>Explore</span></a>
+                                                 </div>
+                                                 <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 flex flex-col text-center shadow-lg h-full transition-transform transform hover:scale-105 w-full max-w-xs md:max-w-none mb-4 md:mb-0">
+                                                     <div class="flex-grow">
+                                                         <h4 class="text-xl font-bold text-white mb-3">✨ AI-First Group</h4>
+                                                         <p class="text-sm text-gray-400">Consulting and design services to empower tech companies.</p>
+                                                     </div>
+                                                     <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full text-sm mt-6"><span>Explore</span></a>
+                                                 </div>
+                                                 <div class="dataism-card bg-[#111113] border border-[#333] rounded-2xl p-6 flex flex-col text-center shadow-lg h-full transition-transform transform hover:scale-105 w-full max-w-xs md:max-w-none">
+                                                     <div class="flex-grow">
+                                                         <h4 class="text-xl font-bold text-white mb-3">🤖 Dataist Media</h4>
+                                                         <p class="text-sm text-gray-400">Latest news, insights, and stories from the world of AI.</p>
+                                                     </div>
+                                                     <a href="#" class="cv-button btn-with-arrow self-center inline-flex items-center justify-center font-bold py-3 px-6 rounded-full text-sm mt-6"><span>Explore</span></a>
+                                                     </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                               </div>
+                                                   <footer class="w-full z-20 bg-[#0a0a0a] mt-auto border-t border-gray-800">
+                        <div class="container mx-auto">
+                            <div class="w-full flex flex-col md:flex-row items-center justify-between gap-y-4 py-4 px-4 sm:px-6 lg:px-8">
+                                
+                                <div class="flex items-center gap-3">
+                                    <img src="https://i.ibb.co/gn7SmgY/866f2500-dd81-4d09-8c0f-2b55c25a3464-removalai-preview.png" alt="AIT Logo" class="h-8 w-auto">
+                                    <p class="text-base text-gray-400">&copy; 2025 Andre AI Technologies</p>
+                                </div>
+                    
+                                <div class="flex items-center gap-x-8">
+                                    <div class="flex items-center gap-x-8 text-base text-gray-400">
+                                        <a href="#" class="hover:text-white transition-colors">Privacy policy</a>
+                                        <a href="#" class="hover:text-white transition-colors">Terms of use</a>
+                                    </div>
+                                    <button id="back-to-top-btn" class="bg-[#1a1a1c] border border-gray-700 rounded-full p-3 text-white hover:bg-purple-500/20 hover:border-purple-500 transition-all transform hover:-translate-y-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19V5M5 12l7-7 7 7" />
+                                        </svg>
+                                    </button>
+                                </div>
+                    
+                            </div>
+                        </div>
+                    </footer>
+                 </section>
+        </div>
+    </div>
+
+    <div id="mobile-menu" class="mobile-menu md:hidden fixed top-0 right-0 h-full w-full bg-[#0a0a0a] transform translate-x-full z-[300] p-8">
+        <button id="close-menu-btn" class="absolute top-7 right-6 sm:right-8 text-white focus:outline-none z-[310]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <a href="#" data-target-section-index="0" class="logo-link absolute top-1 left-4 sm:left-6">
+            <img src="https://i.ibb.co/gn7SmgY/866f2500-dd81-4d09-8c0f-2b55c25a3464-removalai-preview.png" alt="AIT Logo" class="h-16 w-auto">
+        </a>
+        <nav class="flex flex-col h-full justify-center items-center space-y-8 text-lg">
+            <a href="#" data-target-section-index="2" class="nav-link text-center">Science Hub</a>
+            <a href="#" data-target-section-index="3" class="nav-link text-center">AI Super Agent</a>
+            <a href="#" data-target-section-index="4" class="nav-link text-center">AI Employees</a>
+            <a href="#" data-target-section-index="5" class="nav-link text-center">AI Products</a>
+            <a href="#" data-target-section-index="6" class="nav-link text-center">AI Services</a>
+            <a href="#" data-target-section-index="7" class="nav-link text-center">Blog</a>
+            <a href="#" data-target-section-index="8" class="main-cta-button inline-flex items-center justify-center font-bold py-4 px-6 sm:py-5 sm:px-8 rounded-full mt-12 text-base sm:text-lg lg:text-xl"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>Discover AI Solutions</a>
+        </nav>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Говорим браузеру, чтобы он не пытался самостоятельно восстанавливать
+            // позицию прокрутки при перезагрузке страницы. Мы будем управлять этим полностью сами.
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+
+            // === Глобальные переменные ===
+            const sections = document.querySelectorAll('.content-section');
+            const totalSections = sections.length;
+            let currentSectionIndex = 0;
+            let isTransitioning = false; // Главный замок для блокировки прокрутки во время анимации
+            const transitionDuration = 1200; // Должно соответствовать 'transition' в CSS для .content-section
+            let touchStartY = 0;
+            const typewriterInstances = {};
+
+            const blob1 = document.getElementById('blob1');
+            const blob2 = document.getElementById('blob2');
+            const authorPhoto = document.querySelector('.author-photo-container');
+            let isOrbiting = false;
+            let angle = 0;
+            let wanderTime = 0;
+            let cardTarget = null;
+            let blob1State = { x: window.innerWidth * 0.45, y: window.innerHeight * 0.4, scale: 1.0 };
+            let blob2State = { x: window.innerWidth * 0.55, y: window.innerHeight * 0.5, scale: 1.0 };
+
+
+            // === ЛОГИКА TYPEWRITER (без изменений) ===
+            const setupTypewriter = (element) => {
+                if (!element || !element.id) return;
+                const elementId = element.id;
+                
+                const isAdaptive = element.dataset.typewriterMode === 'adaptive';
+                const originalHTML = element.innerHTML;
+                let typingTarget = element;
+
+                if (!isAdaptive) {
+                    element.style.position = 'relative';
+                    const sizer = document.createElement('span');
+                    sizer.style.visibility = 'hidden';
+                    sizer.innerHTML = originalHTML;
+                    const typer = document.createElement('span');
+                    typer.style.position = 'absolute';
+                    typer.style.inset = '0';
+                    element.innerHTML = '';
+                    element.appendChild(sizer);
+                    element.appendChild(typer);
+                    typingTarget = typer;
+                }
+
+                const contentQueue = [];
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = originalHTML;
+                Array.from(tempDiv.childNodes).forEach(node => {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        contentQueue.push(...node.textContent.split(''));
+                    } else if (node.tagName === 'BR') {
+                        contentQueue.push('<br>');
+                    }
+                });
+
+                let isTyping = false;
+                let animationFrameId = null;
+
+                const startTyping = (onComplete = null) => {
+                    cancelAnimationFrame(animationFrameId);
+                    if (isTyping) return;
+                    
+                    isTyping = true;
+                    typingTarget.innerHTML = '';
+                    
+                    let charIndex = 0;
+                    let lastTime = 0;
+                    const typingSpeed = 25; // ms
+
+                    const type = (currentTime) => {
+                        if (!isTyping) return;
+                        if (lastTime === 0) lastTime = currentTime;
+                        
+                        const elapsed = currentTime - lastTime;
+                        if (elapsed >= typingSpeed) {
+                            if (charIndex < contentQueue.length) {
+                                typingTarget.innerHTML += contentQueue[charIndex];
+                                charIndex++;
+                                lastTime = currentTime;
+                            } else {
+                                isTyping = false;
+                                if (onComplete) onComplete();
+                                return;
+                            }
+                        }
+                        animationFrameId = requestAnimationFrame(type);
+                    };
+                    animationFrameId = requestAnimationFrame(type);
+                };
+
+                const reset = () => {
+                    cancelAnimationFrame(animationFrameId);
+                    isTyping = false;
+                    typingTarget.innerHTML = '';
+                };
+                
+                typewriterInstances[elementId] = { start: startTyping, reset: reset };
+                reset();
+            };
+            document.querySelectorAll('.typewriter-target').forEach(setupTypewriter);
+
+
+            // === НОВАЯ ЛОГИКА НАВИГАЦИИ ===
+
+            // Функция для обновления активной секции
+            const updateActiveSection = (newIndex) => {
+                if (newIndex < 0 || newIndex >= totalSections || newIndex === currentSectionIndex && sections[newIndex]?.classList.contains('is-visible')) {
+                    isTransitioning = false;
+                    return;
+                }
+                
+                const oldIndex = currentSectionIndex;
+                currentSectionIndex = newIndex;
+
+                // Сбрасываем цель для "капель" при смене секции
+                cardTarget = null;
+
+                // Обновляем классы видимости
+                sections.forEach((section, index) => {
+                    const typewriterElements = section.querySelectorAll('.typewriter-target');
+                    if (index === newIndex) {
+                        section.classList.add('is-visible');
+                        
+                        // Сбрасываем внутреннюю прокрутку
+                        requestAnimationFrame(() => {
+                            section.scrollTop = 0;
+                        });
+                        
+                        // Запускаем typewriter
+                        const title = typewriterElements[0];
+                        const subtitle = typewriterElements[1];
+                        if (title && typewriterInstances[title.id]) {
+                            if (subtitle && typewriterInstances[subtitle.id]) {
+                                typewriterInstances[title.id].start(() => typewriterInstances[subtitle.id].start());
+                            } else {
+                                typewriterInstances[title.id].start();
+                            }
+                        }
+
+                    } else {
+                        section.classList.remove('is-visible');
+                        // Сбрасываем typewriter
+                        typewriterElements.forEach(el => typewriterInstances[el.id]?.reset());
+                    }
+                });
+
+                // Обновляем состояние для анимации "капель"
+                isOrbiting = (currentSectionIndex === 1);
+
+                // Физически прокручиваем страницу, чтобы sticky-позиционирование работало
+                window.scrollTo({
+                    top: newIndex * window.innerHeight,
+                    behavior: 'auto'
+                });
+
+                // Разблокируем навигацию после завершения анимации
+                setTimeout(() => {
+                    isTransitioning = false;
+                }, transitionDuration + 50); // Добавляем 50ms на всякий случай
+            };
+            
+            // Единая функция для перехода к секции
+            const navigateToSection = (targetIndex) => {
+                if (isTransitioning) return;
+                isTransitioning = true;
+                updateActiveSection(targetIndex);
+            };
+
+
+            // === ОБРАБОТЧИКИ СОБЫТИЙ ===
+
+            // Обработчик колесика мыши
+            const wheelHandler = (e) => {
+                if (isTransitioning) {
+                    e.preventDefault();
+                    return;
+                }
+
+                const currentSection = sections[currentSectionIndex];
+                if (!currentSection) return; // FIX: Добавлена проверка на существование секции
+                
+                const isScrollable = currentSection.scrollHeight > currentSection.clientHeight;
+                const isScrollingDown = e.deltaY > 0;
+                const scrollBuffer = 5; // Небольшой буфер
+
+                // Проверяем, нужно ли скроллить внутри секции
+                if (isScrollable) {
+                    if (isScrollingDown && currentSection.scrollTop + currentSection.clientHeight < currentSection.scrollHeight - scrollBuffer) {
+                        return; // Позволяем скроллить вниз внутри секции
+                    }
+                    if (!isScrollingDown && currentSection.scrollTop > scrollBuffer) {
+                        return; // Позволяем скроллить вверх внутри секции
+                    }
+                }
+
+                // Если мы у края секции, переключаем на следующую
+                e.preventDefault();
+                if (isScrollingDown) {
+                    navigateToSection(currentSectionIndex + 1);
+                } else {
+                    navigateToSection(currentSectionIndex - 1);
+                }
+            };
+            
+            // Обработчики касаний (для мобильных)
+            const touchStartHandler = (e) => {
+                if (isTransitioning) return;
+                touchStartY = e.touches[0].clientY;
+            };
+
+            const touchEndHandler = (e) => {
+                if (isTransitioning) return;
+
+                const touchEndY = e.changedTouches[0].clientY;
+                const deltaY = touchStartY - touchEndY;
+                const sensitivity = 50;
+
+                if (Math.abs(deltaY) < sensitivity) return;
+                
+                const currentSection = sections[currentSectionIndex];
+                if (!currentSection) return; // FIX: Добавлена проверка на существование секции
+                
+                const isScrollable = currentSection.scrollHeight > currentSection.clientHeight;
+                const isSwipingUp = deltaY > 0;
+                const scrollBuffer = 5;
+
+                if (isScrollable) {
+                    if (isSwipingUp && currentSection.scrollTop + currentSection.clientHeight < currentSection.scrollHeight - scrollBuffer) {
+                        return;
+                    }
+                    if (!isSwipingUp && currentSection.scrollTop > scrollBuffer) {
+                        return;
+                    }
+                }
+                
+                if (isSwipingUp) {
+                    navigateToSection(currentSectionIndex + 1);
+                } else {
+                    navigateToSection(currentSectionIndex - 1);
+                }
+            };
+
+            // Назначаем обработчики
+            window.addEventListener('wheel', wheelHandler, { passive: false });
+            window.addEventListener('touchstart', touchStartHandler, { passive: true });
+            window.addEventListener('touchend', touchEndHandler, { passive: true });
+
+            // Обработка кликов по ссылкам навигации
+            const allNavLinks = document.querySelectorAll('a[data-target-section-index]');
+            allNavLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetIndex = parseInt(link.dataset.targetSectionIndex, 10);
+                    if (!isNaN(targetIndex)) {
+                        navigateToSection(targetIndex);
+                    }
+                    if (link.closest('#mobile-menu')) {
+                        setTimeout(() => {
+                           if (!mobileMenu.classList.contains('translate-x-full')) {
+                               toggleMenu();
+                           }
+                        }, 100);
+                    }
+                });
+            });
+
+
+            // === ЛОГИКА МОБИЛЬНОГО МЕНЮ (без изменений) ===
+            const menuBtn = document.getElementById('menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const closeMenuBtn = document.getElementById('close-menu-btn');
+            
+            const toggleMenu = () => {
+                mobileMenu.classList.toggle('translate-x-full');
+            };
+
+            menuBtn.addEventListener('click', toggleMenu);
+            closeMenuBtn.addEventListener('click', toggleMenu);
+            
+
+            // === ЛОГИКА АНИМАЦИИ "КАПЕЛЬ" ===
+            const allCtaButtons = document.querySelectorAll('.main-cta-button, .cv-button, .cta-button');
+            allCtaButtons.forEach(button => {
+                const hide = () => { blob1.style.opacity = '0';   blob2.style.opacity = '0'; };
+                const show = () => { blob1.style.opacity = '0.7'; blob2.style.opacity = '0.7'; };
+                button.addEventListener('mouseenter', hide);
+                button.addEventListener('mouseleave', show);
+                button.addEventListener('focus', hide);
+                button.addEventListener('blur', show);
+                button.addEventListener('click', show);
+                button.addEventListener('touchstart', hide, {passive:true});
+                button.addEventListener('touchend', show,   {passive:true});
+            });
+            
+            const interactiveCards = document.querySelectorAll('.dataism-card, .employee-card, .blog-card');
+            interactiveCards.forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    if (currentSectionIndex >= 2) {
+                        cardTarget = card;
+                    }
+                });
+                card.addEventListener('mouseleave', () => {
+                    cardTarget = null;
+                });
+            });
+
+            function animate() {
+                let targetX1, targetY1, targetScale1;
+                let targetX2, targetY2, targetScale2;
+                const blobWidth = blob1.offsetWidth;
+                const blobHeight = blob1.offsetHeight;
+                
+                if (cardTarget && currentSectionIndex >= 2) {
+                    const cardRect = cardTarget.getBoundingClientRect();
+                    const centerX = cardRect.left + cardRect.width / 2;
+                    const centerY = cardRect.top + cardRect.height / 2;
+                    targetScale1 = 0.6;
+                    targetScale2 = 0.6;
+                    const offset = cardRect.width * 0.2;
+                    targetX1 = centerX - (blobWidth / 2) - offset;
+                    targetY1 = centerY - blobHeight / 2;
+                    targetX2 = centerX - (blobWidth / 2) + offset;
+                    targetY2 = centerY - blobHeight / 2;
+                } else if (isOrbiting && authorPhoto) {
+                    const photoRect = authorPhoto.getBoundingClientRect();
+                    const centerX = photoRect.left + photoRect.width / 2;
+                    const centerY = window.innerHeight * 0.32;
+                    const radius = photoRect.width * 0.6;
+                    angle += 0.003; 
+                    targetScale1 = 0.7;
+                    targetScale2 = 0.7;
+                    targetX1 = (centerX + radius * Math.cos(angle)) - blobWidth / 2;
+                    targetY1 = (centerY + radius * Math.sin(angle)) - blobHeight / 2;
+                    targetX2 = (centerX + radius * Math.cos(angle + Math.PI / 2)) - blobWidth / 2;  
+                    targetY2 = (centerY + radius * Math.sin(angle + Math.PI / 2)) - blobHeight / 2;
+                } else {
+                    wanderTime += 0.003;
+                    const centerX = window.innerWidth / 2;
+                    const centerY = window.innerHeight / 2;
+                    const wanderRadiusX = Math.min(centerX, centerY) * 0.45;
+                    const wanderRadiusY = Math.min(centerX, centerY) * 0.35;
+                    targetX1 = centerX + wanderRadiusX * Math.cos(wanderTime) - blobWidth / 2;
+                    targetY1 = centerY + wanderRadiusY * Math.sin(wanderTime * 1.5) - blobHeight / 2;
+                    targetScale1 = 1.0;
+                    const phaseOffset = 1.5;
+                    targetX2 = centerX + wanderRadiusX * Math.cos(wanderTime - phaseOffset) - blobWidth / 2;
+                    targetY2 = centerY + wanderRadiusY * Math.sin((wanderTime - phaseOffset) * 1.5) - blobHeight / 2;
+                    targetScale2 = 1.0;
+                }
+                
+                const smoothingFactor = 0.04;  
+                blob1State.x += (targetX1 - blob1State.x) * smoothingFactor;
+                blob1State.y += (targetY1 - blob1State.y) * smoothingFactor;
+                blob1State.scale += (targetScale1 - blob1State.scale) * smoothingFactor;
+                blob2State.x += (targetX2 - blob2State.x) * smoothingFactor;
+                blob2State.y += (targetY2 - blob2State.y) * smoothingFactor;
+                blob2State.scale += (targetScale2 - blob2State.scale) * smoothingFactor;
+                
+                blob1.style.transform = `translate3d(${blob1State.x}px, ${blob1State.y}px, 0) scale(${blob1State.scale})`;
+                blob2.style.transform = `translate3d(${blob2State.x}px, ${blob2State.y}px, 0) scale(${blob2State.scale})`;
+                requestAnimationFrame(animate);
+            }
+
+
+            // === ЛОГИКА СЛАЙДЕРА И ПРОЧЕЕ (без изменений) ===
+            const backToTopBtn = document.getElementById('back-to-top-btn');
+            if (backToTopBtn) {
+                backToTopBtn.addEventListener('click', () => {
+                    navigateToSection(0);
+                });
+            }
+            
+            const sliderContainer = document.getElementById('blog-slider-container');
+            if (sliderContainer) {
+                const slides = sliderContainer.querySelectorAll('.blog-slide');
+                let currentIndex = 0;
+                const totalSlides = slides.length;
+                const updateSliderPosition = () => {
+                    if (slides.length === 0) return;
+                    const slideWidth = slides[0].clientWidth;
+                    sliderContainer.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+                    const atStart = currentIndex === 0;
+                    const atEnd = currentIndex >= totalSlides - 1;
+                    document.getElementById('blog-prev').disabled = atStart;
+                    document.getElementById('blog-prev-mobile').disabled = atStart;
+                    document.getElementById('blog-next').disabled = atEnd;
+                    document.getElementById('blog-next-mobile').disabled = atEnd;
+                };
+                const goToNext = () => { if (currentIndex < totalSlides - 1) { currentIndex++; updateSliderPosition(); } };
+                const goToPrev = () => { if (currentIndex > 0) { currentIndex--; updateSliderPosition(); } };
+                document.getElementById('blog-next').addEventListener('click', goToNext);
+                document.getElementById('blog-next-mobile').addEventListener('click', goToNext);
+                document.getElementById('blog-prev').addEventListener('click', goToPrev);
+                document.getElementById('blog-prev-mobile').addEventListener('click', goToPrev);
+                updateSliderPosition();
+                window.addEventListener('resize', updateSliderPosition);
+            }
+
+            // === ИНИЦИАЛИЗАЦИЯ ===
+            const initialSectionIndex = Math.round(window.scrollY / window.innerHeight);
+            currentSectionIndex = -1; // Устанавливаем -1, чтобы updateActiveSection гарантированно сработала
+            updateActiveSection(initialSectionIndex);
+            
+            animate();
+        });
+    </script>
+</body>
+</html>
+
