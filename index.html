@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
     <title>Human Intelligence Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,7 +22,7 @@
             font-family: 'JetBrains Mono', monospace;
             background-color: var(--bg-light);
             color: var(--text-main);
-            height: 300vh; 
+            height: 400vh; 
             overscroll-behavior: none;
         }
         
@@ -46,13 +46,15 @@
             justify-content: flex-start; /* Default for mobile */
             opacity: 0;
             z-index: 1;
-            transition: opacity 1.2s ease;
+            transition: opacity 0.8s ease-in-out;
             overflow-y: auto;
+            visibility: hidden;
         }
 
         .content-section.is-visible {
             opacity: 1;
             z-index: 2;
+            visibility: visible;
         }
 
         /* Стиль для эффекта "матового стекла" у изображения */
@@ -113,15 +115,14 @@
 
         /* Стили для карточек во второй секции */
         .feature-card {
-            background-color: rgba(249, 250, 251, 0.7); /* Slightly off-white */
-            backdrop-filter: blur(10px);
+            background-color: white;
             border: 1px solid #e5e7eb;
             border-radius: 1.5rem;
-            padding: 2rem;
-            text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
             position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
         }
         .feature-card:hover {
             transform: translateY(-5px);
@@ -167,24 +168,6 @@
             cursor: not-allowed;
         }
         
-        .learn-more-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-weight: 600;
-            color: var(--brand-purple);
-            transition: all 0.2s ease;
-        }
-        .learn-more-button svg {
-            transition: transform 0.2s ease;
-        }
-        .learn-more-button:hover {
-            color: #6d28d9; /* A darker purple */
-        }
-        .learn-more-button:hover svg {
-            transform: translateX(4px);
-        }
-
         /* Стили для модального окна */
         .modal {
             transition: opacity 0.3s ease;
@@ -198,6 +181,27 @@
         }
         .modal.is-active .modal-content {
             transform: scale(1);
+        }
+
+        /* Стили для секции AI Employees */
+        .employee-tab-button {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            transition: all 0.3s ease;
+        }
+        .employee-tab-button:hover {
+            background-color: #e5e7eb;
+        }
+        .employee-tab-button.active {
+            background-color: var(--brand-purple);
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(var(--brand-purple-rgb), 0.38);
+        }
+        .resume-card {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid #e5e7eb;
+            transition: all 0.5s ease-in-out;
         }
 
         /* Утилита для скрытия скроллбара */
@@ -260,7 +264,7 @@
         </header>
 
         <!-- Секция 1: Главный экран -->
-        <section id="hero-section" class="content-section is-visible">
+        <section id="hero-section" class="content-section">
             <div class="container mx-auto flex flex-col-reverse md:flex-row items-center justify-center text-center md:text-left h-full pt-20 md:pt-0 px-4">
                 <div class="md:w-1/2 mt-10 md:mt-0 flex justify-center">
                     <div class="image-container-effect">
@@ -290,34 +294,28 @@
                  <h2 class="text-3xl md:text-4xl font-extrabold mb-12">AI Revolution with AI Employees</h2>
                  <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                       <!-- Карточка 1 -->
-                      <div class="feature-card" data-modal-content="<img src='https://i.ibb.co/7xCsMJdx/0111-Chat-GPT-Image-28-2025-00-39-57-removebg-preview.png' alt='Knows your data' class='w-full rounded-lg mb-4'>AI can be trained on your internal documents, knowledge bases, and processes to make relevant decisions. It integrates seamlessly with your existing data infrastructure to provide context-aware support.">
-                          <div class="absolute top-4 right-4 text-gray-400">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <div class="feature-card p-6">
+                          <img src='https://i.ibb.co/7xCsMJdx/0111-Chat-GPT-Image-28-2025-00-39-57-removebg-preview.png' alt='Knows your data' class='w-full h-40 object-contain'>
+                          <div class="pt-4 text-center">
+                              <h3 class="text-base font-bold">Knows your company data</h3>
+                              <p class="text-gray-600 text-sm mt-2">AI trained on your internal documents and knowledge bases to provide context-aware support.</p>
                           </div>
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color: var(--brand-purple);">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
-                          </svg>
-                          <h3 class="text-xl font-bold">Knows your company data</h3>
                       </div>
                       <!-- Карточка 2 -->
-                      <div class="feature-card" data-modal-content="<img src='https://i.ibb.co/gnJzWn5/0222-Chat-GPT-Image-28-2025-15-56-59-removebg-preview.png' alt='Solves complex tasks' class='w-full rounded-lg mb-4'>The AI Employee is capable of analyzing, planning, and executing multi-step tasks autonomously. From market research to generating reports, it handles complex workflows without constant supervision.">
-                          <div class="absolute top-4 right-4 text-gray-400">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <div class="feature-card p-6">
+                          <img src='https://i.ibb.co/gnJzWn5/0222-Chat-GPT-Image-28-2025-15-56-59-removebg-preview.png' alt='Solves complex tasks' class='w-full h-40 object-contain'>
+                          <div class="pt-4 text-center">
+                            <h3 class="text-base font-bold">Solves complex tasks</h3>
+                            <p class="text-gray-600 text-sm mt-2">Analyzes, plans, and executes multi-step tasks autonomously, from research to reporting.</p>
                           </div>
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color: var(--brand-purple);">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
-                          </svg>
-                          <h3 class="text-xl font-bold">Solves complex tasks</h3>
                       </div>
                       <!-- Карточка 3 -->
-                      <div class="feature-card" data-modal-content="<img src='https://i.ibb.co/Cs8cmf3v/033-Chat-GPT-Image-28-2025-16-17-08-removebg-preview.png' alt='Interact like humans' class='w-full rounded-lg mb-4'>Communicate with the AI Employee in a natural way through chat, email, or other familiar channels. It understands context, remembers past conversations, and can collaborate with human team members.">
-                          <div class="absolute top-4 right-4 text-gray-400">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <div class="feature-card p-6">
+                          <img src='https://i.ibb.co/Cs8cmf3v/033-Chat-GPT-Image-28-2025-16-17-08-removebg-preview.png' alt='Interact like humans' class='w-full h-40 object-contain'>
+                           <div class="pt-4 text-center">
+                            <h3 class="text-base font-bold">Interact like with humans</h3>
+                             <p class="text-gray-600 text-sm mt-2">Understands context and collaborates with your team across various systems.</p>
                           </div>
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color: var(--brand-purple);">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V10a2 2 0 012-2h8z" />
-                          </svg>
-                          <h3 class="text-xl font-bold">Interact like with humans</h3>
                       </div>
                  </div>
             </div>
@@ -326,10 +324,10 @@
         <!-- Секция 3: Use Cases -->
         <section id="use-cases-section" class="content-section pt-44 md:pt-0">
             <div class="container mx-auto px-4 w-full flex flex-col">
-                <h2 class="text-3xl md:text-4xl font-extrabold text-center mb-6">AI Employees for Any Business</h2>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-center mb-12">AI Employees for Any Business</h2>
                 
                 <!-- Табы с иконками -->
-                <div class="w-full flex justify-center mb-8">
+                <div class="w-full flex justify-center mb-2">
                     <div class="flex items-center gap-x-1 sm:gap-x-2 md:gap-x-4 lg:gap-x-5 overflow-x-auto pb-3 no-scrollbar">
                         <button class="tab-button active flex items-center gap-1 font-semibold text-[10px] sm:text-xs whitespace-nowrap px-1" data-tab="0">
                             <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -388,6 +386,52 @@
             </div>
         </section>
 
+        <!-- Секция 4: AI Employees -->
+        <section id="ai-employees-section" class="content-section">
+            <div class="container mx-auto px-4 w-full flex flex-col h-full justify-center items-center">
+                <div class="w-full max-w-5xl"> <!-- Centering wrapper -->
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-center mb-12">Meet Your AI Employees</h2>
+                    <div id="employee-tabs" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4 max-w-4xl mx-auto w-full mb-6">
+                        <!-- Buttons will be dynamically inserted here -->
+                    </div>
+                    <!-- Slider Container -->
+                    <div class="w-full flex items-center justify-center gap-x-2 md:gap-x-4 max-w-5xl mx-auto">
+                        <!-- Prev Button -->
+                        <button id="employee-prev" class="slider-nav-button flex-shrink-0 z-10 p-2 rounded-full">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+
+                        <!-- Resume Card -->
+                        <div id="resume-card" class="resume-card flex-grow rounded-2xl shadow-lg p-6 md:p-8 flex flex-col md:flex-row items-center gap-8">
+                            <div class="flex-shrink-0">
+                                <img id="resume-image" src="" alt="AI Employee" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md">
+                            </div>
+                            <div class="flex-1 text-center md:text-left flex flex-col">
+                               <div class="flex-grow">
+                                    <h3 id="resume-title" class="text-2xl md:text-3xl font-bold mb-2"></h3>
+                                    <p id="resume-description" class="text-gray-600 mb-6"></p>
+                                    <div id="resume-skills" class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-gray-700">
+                                        <!-- Skills go here -->
+                                    </div>
+                               </div>
+                                <div class="mt-6 flex justify-center md:justify-end">
+                                     <button class="cta-button !py-2 !px-6 !text-sm rounded-full inline-flex items-center gap-2">
+                                         <span>Learn More</span>
+                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                     </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Next Button -->
+                        <button id="employee-next" class="slider-nav-button flex-shrink-0 z-10 p-2 rounded-full">
+                           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </div>
 
     <!-- Модальное окно -->
@@ -407,126 +451,35 @@
         document.addEventListener('DOMContentLoaded', () => {
             if ('scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';
+                window.scrollTo(0, 0);
             }
 
-            // --- Скрипт прокрутки ---
+            // --- Simplified Scroll Logic ---
             const sections = document.querySelectorAll('.content-section');
             const totalSections = sections.length;
-            let currentSectionIndex = 0;
-            let isTransitioning = false;
-            const transitionDuration = 1200;
-            let touchStartY = 0;
+            let currentSectionIndex = -1; 
             
             document.body.style.height = `${totalSections * 100}vh`;
 
-            const updateActiveSection = (newIndex) => {
-                if (newIndex < 0 || newIndex >= totalSections || newIndex === currentSectionIndex && sections[newIndex]?.classList.contains('is-visible')) {
-                    isTransitioning = false;
-                    return;
-                }
+            const updateActiveSectionOnScroll = () => {
+                const newIndex = Math.round(window.scrollY / window.innerHeight);
                 
-                currentSectionIndex = newIndex;
-
-                sections.forEach((section, index) => {
-                    if (index === newIndex) {
-                        section.classList.add('is-visible');
-                        requestAnimationFrame(() => {
-                            section.scrollTop = 0;
-                        });
-                    } else {
-                        section.classList.remove('is-visible');
-                    }
-                });
-                
-                window.scrollTo({
-                    top: newIndex * window.innerHeight,
-                    behavior: 'auto'
-                });
-
-                setTimeout(() => {
-                    isTransitioning = false;
-                }, transitionDuration);
-            };
-
-            const navigateToSection = (targetIndex) => {
-                if (isTransitioning) return;
-                isTransitioning = true;
-                updateActiveSection(targetIndex);
-            };
-
-            const wheelHandler = (e) => {
-                if (isTransitioning) {
-                    e.preventDefault();
-                    return;
-                }
-
-                const currentSection = sections[currentSectionIndex];
-                if (!currentSection) return;
-                
-                const isScrollable = currentSection.scrollHeight > currentSection.clientHeight;
-                const isScrollingDown = e.deltaY > 0;
-                const scrollBuffer = 5;
-
-                if (isScrollable) {
-                    if (isScrollingDown && currentSection.scrollTop + currentSection.clientHeight < currentSection.scrollHeight - scrollBuffer) {
-                        return;
-                    }
-                    if (!isScrollingDown && currentSection.scrollTop > scrollBuffer) {
-                        return;
-                    }
-                }
-                
-                e.preventDefault();
-                if (isScrollingDown) {
-                    navigateToSection(currentSectionIndex + 1);
-                } else {
-                    navigateToSection(currentSectionIndex - 1);
+                if (newIndex !== currentSectionIndex && newIndex < totalSections) {
+                    currentSectionIndex = newIndex;
+                    sections.forEach((section, index) => {
+                        section.classList.toggle('is-visible', index === currentSectionIndex);
+                    });
                 }
             };
             
-            const touchStartHandler = (e) => {
-                if (isTransitioning) return;
-                touchStartY = e.touches[0].clientY;
-            };
-
-            const touchEndHandler = (e) => {
-                if (isTransitioning) return;
-
-                const touchEndY = e.changedTouches[0].clientY;
-                const deltaY = touchStartY - touchEndY;
-                const sensitivity = 50;
-
-                if (Math.abs(deltaY) < sensitivity) return;
-                
-                const currentSection = sections[currentSectionIndex];
-                if (!currentSection) return;
-                
-                const isScrollable = currentSection.scrollHeight > currentSection.clientHeight;
-                const isSwipingUp = deltaY > 0;
-                const scrollBuffer = 5;
-
-                if (isScrollable) {
-                    if (isSwipingUp && currentSection.scrollTop + currentSection.clientHeight < currentSection.scrollHeight - scrollBuffer) {
-                        return;
-                    }
-                    if (!isSwipingUp && currentSection.scrollTop > scrollBuffer) {
-                        return;
-                    }
-                }
-                
-                if (isSwipingUp) {
-                    navigateToSection(currentSectionIndex + 1);
-                } else {
-                    navigateToSection(currentSectionIndex - 1);
-                }
-            };
-            
-            window.addEventListener('wheel', wheelHandler, { passive: false });
-            window.addEventListener('touchstart', touchStartHandler, { passive: true });
-            window.addEventListener('touchend', touchEndHandler, { passive: true });
+            window.addEventListener('scroll', updateActiveSectionOnScroll, { passive: true });
+            // Initial call to set the first section
+            setTimeout(() => {
+                updateActiveSectionOnScroll();
+            }, 10);
             
             // --- Скрипт для модального окна ---
-            const featureCards = document.querySelectorAll('.feature-card');
+            const featureCards = document.querySelectorAll('.feature-card[data-modal-content]');
             const modal = document.getElementById('info-modal');
             const modalContentText = document.getElementById('modal-content-text');
             const modalCloseBtn = document.getElementById('modal-close-btn');
@@ -543,7 +496,9 @@
             featureCards.forEach(card => {
                 card.addEventListener('click', () => {
                     const content = card.dataset.modalContent;
-                    openModal(content);
+                    if (content) {
+                        openModal(content);
+                    }
                 });
             });
 
@@ -554,7 +509,7 @@
                 }
             });
 
-            // --- СКРИПТ ДЛЯ ТАБОВ И СЛАЙДЕРА ---
+            // --- СКРИПТ ДЛЯ ТАБОВ И СЛАЙДЕРА (USE CASES) ---
             const allUseCases = [
                 { // 0: FREELANCER
                     cards: [
@@ -642,7 +597,7 @@
             ];
             
             const ucSliderContainer = document.getElementById('uc-slider-container');
-            const tabButtons = document.querySelectorAll('#use-cases-section .tab-button');
+            const ucTabButtons = document.querySelectorAll('#use-cases-section .tab-button');
             const ucPrevBtn = document.getElementById('uc-prev');
             const ucNextBtn = document.getElementById('uc-next');
             const ucPrevMobileBtn = document.getElementById('uc-prev-mobile');
@@ -662,10 +617,9 @@
                                 <h3 class="text-2xl font-bold mb-3">${item.title}</h3>
                                 <p class="text-gray-600">${item.description}</p>
                             </div>
-                            <div class="mt-4 self-center md:self-start">
-                                <a href="#" class="learn-more-button">
-                                    <span>Learn More</span>
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                            <div class="mt-6 flex justify-center md:justify-end">
+                                <a href="#" class="cta-button !text-sm !py-2 !px-5 rounded-full">
+                                    Learn More
                                 </a>
                             </div>
                         </div>
@@ -688,20 +642,17 @@
                 ucNextMobileBtn.disabled = atEnd;
             };
             
-            const loadCategory = (categoryIndex) => {
+            const loadUcCategory = (categoryIndex) => {
                 const categoryData = allUseCases[categoryIndex];
                 if (!categoryData) return;
                 
-                // Render slides for the selected category
                 ucSliderContainer.innerHTML = categoryData.cards.map(createSlide).join('');
                 ucTotalSlides = categoryData.cards.length;
                 
-                // Reset slider position
                 ucCurrentIndex = 0;
                 updateUcSliderPosition();
 
-                // Update active tab style
-                tabButtons.forEach((btn, index) => {
+                ucTabButtons.forEach((btn, index) => {
                     btn.classList.toggle('active', index === categoryIndex);
                 });
             }
@@ -709,10 +660,10 @@
             const ucGoToNext = () => { if (ucCurrentIndex < ucTotalSlides - 1) { ucCurrentIndex++; updateUcSliderPosition(); } };
             const ucGoToPrev = () => { if (ucCurrentIndex > 0) { ucCurrentIndex--; updateUcSliderPosition(); } };
             
-            tabButtons.forEach(button => {
+            ucTabButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const tabIndex = parseInt(button.dataset.tab);
-                    loadCategory(tabIndex);
+                    loadUcCategory(tabIndex);
                 });
             });
 
@@ -721,13 +672,135 @@
             ucPrevBtn.addEventListener('click', ucGoToPrev);
             ucPrevMobileBtn.addEventListener('click', ucGoToPrev);
             
-            // Initial load
-            loadCategory(0);
+            loadUcCategory(0);
             window.addEventListener('resize', updateUcSliderPosition);
 
-            // Инициализация
-            const initialSectionIndex = Math.round(window.scrollY / window.innerHeight);
-            updateActiveSection(initialSectionIndex);
+            // --- СКРИПТ ДЛЯ СЕКЦИИ AI EMPLOYEES ---
+            const aiEmployeesData = [
+                {
+                    title: 'AI Manager',
+                    image: 'https://i.ibb.co/f2k1sT3/image.png',
+                    description: 'Streamlines workflows, automates task delegation, and provides real-time project insights, ensuring your team operates at peak efficiency.',
+                    skills: ['Project Planning', 'Task Automation', 'Performance Tracking', 'Resource Allocation', 'Reporting & Analytics', 'Risk Management', 'Budget Oversight', 'Team Coordination', 'Process Optimization', 'Goal Setting']
+                },
+                {
+                    title: 'AI HR',
+                    image: 'https://i.ibb.co/g3B2z1w/image.png',
+                    description: 'Automates the entire hiring lifecycle from sourcing candidates to onboarding new hires, freeing up your HR team for strategic initiatives.',
+                    skills: ['Candidate Sourcing', 'Resume Screening', 'Interview Scheduling', 'Onboarding Automation', 'Employee Engagement', 'Performance Review', 'Benefits Administration', 'Compliance Tracking', 'HR Analytics', 'Training & Development']
+                },
+                {
+                    title: 'AI Marketer',
+                    image: 'https://i.ibb.co/xL0T4J2/image.png',
+                    description: 'Develops and executes data-driven marketing campaigns, from audience segmentation and ad creation to performance analysis and optimization.',
+                    skills: ['Market Research', 'Campaign Management', 'Content Generation', 'SEO Optimization', 'Social Media Automation', 'Email Marketing', 'A/B Testing', 'Lead Nurturing', 'Conversion Rate Optimization', 'Marketing Analytics']
+                },
+                {
+                    title: 'AI SMM',
+                    image: 'https://i.ibb.co/c1bQp89/image.png',
+                    description: 'Manages all aspects of your social media presence, creating engaging content, scheduling posts, monitoring conversations, and analyzing engagement.',
+                    skills: ['Content Curation', 'Post Scheduling', 'Community Management', 'Trend Analysis', 'Influencer Identification', 'Reputation Monitoring', 'Social Listening', 'Ad Campaign Management', 'Performance Reporting', 'Platform Strategy']
+                },
+                {
+                    title: 'AI Sales Expert',
+                    image: 'https://i.ibb.co/yQGrm9p/image.png',
+                    description: 'Accelerates your sales cycle by automating lead generation, personalizing outreach, and providing reps with real-time sales intelligence.',
+                    skills: ['Lead Generation', 'CRM Automation', 'Sales Forecasting', 'Personalized Outreach', 'Proposal Generation', 'Deal Tracking', 'Sales Funnel Analysis', 'Customer Segmentation', 'Negotiation Support', 'Performance Dashboards']
+                },
+                {
+                    title: 'AI Support',
+                    image: 'https://i.ibb.co/3kXpGHn/image.png',
+                    description: 'Delivers instant, 24/7 customer support across all channels, resolving issues quickly and escalating complex cases to human agents seamlessly.',
+                    skills: ['24/7 Availability', 'Ticket Automation', 'Knowledge Base Mgmt.', 'Live Chat Support', 'Multi-channel Comms', 'Sentiment Analysis', 'Proactive Assistance', 'Issue Escalation', 'Customer Feedback', 'Support Analytics']
+                },
+                {
+                    title: 'AI Analyst',
+                    image: 'https://i.ibb.co/tZ9X6P4/image.png',
+                    description: 'Transforms raw data into actionable insights, identifying trends, generating reports, and building predictive models to guide strategic decisions.',
+                    skills: ['Data Mining', 'Predictive Modeling', 'Statistical Analysis', 'Dashboard Creation', 'Financial Reporting', 'Market Trend Analysis', 'Competitor Analysis', 'Data Visualization', 'ETL Processes', 'Business Intelligence']
+                },
+                {
+                    title: 'AI Designer',
+                    image: 'https://i.ibb.co/V3gQzcw/image.png',
+                    description: 'Generates stunning visual assets on-demand, from logos and social media graphics to website mockups, ensuring brand consistency at scale.',
+                    skills: ['Logo Design', 'UI/UX Prototyping', 'Brand Guideline Adherence', 'Image Generation', 'Infographic Creation', 'A/B Test Visuals', 'Asset Variation', 'Style Transfer', 'Automated Layouts', 'Content Resizing']
+                },
+                {
+                    title: 'AI Developer',
+                    image: 'https://i.ibb.co/7C95fJb/image.png',
+                    description: 'Accelerates the software development lifecycle by writing boilerplate code, automating tests, debugging issues, and assisting with deployments.',
+                    skills: ['Code Generation', 'Automated Testing', 'Bug Detection', 'Code Refactoring', 'API Integration', 'Database Management', 'CI/CD Automation', 'Code Review', 'Documentation', 'Performance Tuning']
+                },
+                {
+                    title: 'AI Engineer',
+                    image: 'https://i.ibb.co/yWpS5Pz/image.png',
+                    description: 'Ensures your technical infrastructure is robust, scalable, and secure by automating monitoring, maintenance, and incident response.',
+                    skills: ['Infrastructure as Code', 'System Monitoring', 'Automated Scaling', 'Security Audits', 'Incident Response', 'Network Optimization', 'Cost Management', 'Disaster Recovery', 'Performance Optimization', 'CI/CD Pipelines']
+                },
+            ];
+
+            const employeeTabsContainer = document.getElementById('employee-tabs');
+            const resumeImage = document.getElementById('resume-image');
+            const resumeTitle = document.getElementById('resume-title');
+            const resumeDescription = document.getElementById('resume-description');
+            const resumeSkills = document.getElementById('resume-skills');
+            const employeePrevBtn = document.getElementById('employee-prev');
+            const employeeNextBtn = document.getElementById('employee-next');
+
+            let currentEmployeeIndex = 0;
+
+            const updateResumeCard = (employeeIndex) => {
+                const employee = aiEmployeesData[employeeIndex];
+                if (!employee) return;
+                
+                resumeImage.src = employee.image;
+                resumeTitle.textContent = employee.title;
+                resumeDescription.textContent = employee.description;
+                
+                resumeSkills.innerHTML = ''; // Clear previous skills
+                employee.skills.forEach(skill => {
+                    const skillElement = document.createElement('div');
+                    skillElement.classList.add('flex', 'items-center');
+                    skillElement.innerHTML = `
+                        <svg class="w-4 h-4 mr-2 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>${skill}</span>
+                    `;
+                    resumeSkills.appendChild(skillElement);
+                });
+
+                // Update active button
+                document.querySelectorAll('.employee-tab-button').forEach((btn, index) => {
+                    btn.classList.toggle('active', index === employeeIndex);
+                });
+
+                // Update nav buttons state
+                employeePrevBtn.disabled = employeeIndex === 0;
+                employeeNextBtn.disabled = employeeIndex === aiEmployeesData.length - 1;
+            };
+
+            const goToEmployee = (index) => {
+                if (index >= 0 && index < aiEmployeesData.length) {
+                    currentEmployeeIndex = index;
+                    updateResumeCard(currentEmployeeIndex);
+                }
+            }
+
+            const renderEmployeeTabs = () => {
+                aiEmployeesData.forEach((employee, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'employee-tab-button font-semibold py-2 px-4 rounded-full text-xs md:text-sm';
+                    button.textContent = employee.title;
+                    button.addEventListener('click', () => goToEmployee(index));
+                    employeeTabsContainer.appendChild(button);
+                });
+            };
+            
+            employeePrevBtn.addEventListener('click', () => goToEmployee(currentEmployeeIndex - 1));
+            employeeNextBtn.addEventListener('click', () => goToEmployee(currentEmployeeIndex + 1));
+
+            renderEmployeeTabs();
+            goToEmployee(0); // Load the first employee by default
+
         });
     </script>
 </body>
